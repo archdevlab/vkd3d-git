@@ -1,0 +1,116 @@
+#_                   _ _ _  _ _____ _  _
+#| | _______   ____ _| | | || |___  | || |
+#| |/ / _ \ \ / / _` | | | || |_ / /| || |_
+#|   <  __/\ V / (_| | | |__   _/ / |__   _|
+#|_|\_\___| \_/ \__,_|_|_|  |_|/_/     |_|
+
+#Maintainer: kevall474 <kevall474@tuta.io> <https://github.com/kevall474>
+#Credits: Felix Yan <felixonmars@archlinux.or>
+#Credits: Bruce Zhang
+#Credits: Gustavo Alvarez <sl1pkn07@gmail.com>
+
+#######################################
+
+#Set '1' to build with GCC
+#Set '2' to build with CLANG
+#Default is empty. It will build with GCC. To build with different compiler just use : env _compiler=(1 or 2) makepkg -s
+if [ -z ${_compiler+x} ]; then
+  _compiler=
+fi
+
+#######################################
+
+pkgname=lib32-vkd3d-git
+pkgver=1.2
+pkgrel=1
+pkgdesc='D3D12 to Vulkan translation library (32-bit) (git version)'
+arch=('x86_64')
+url='https://source.winehq.org/git/vkd3d.git'
+license=('LGPL')
+
+# If enable with-spirv-tools in build
+# lib32-spirv-tools-git can be downloaded at this address : https://repo.archlinuxrepo.dev/x86_64/main
+# or by adding this repo :
+# [kevall474]
+# SigLevel = PackageOptional
+# Server = https://repo.archlinuxrepo.dev/$arch/main
+# or
+# yay -S lib32-spirv-tools 
+# or 
+# yay -S lib32-spirv-tools-git
+# depends=('vkd3d' 'lib32-spirv-tools' 'lib32-vulkan-icd-loader' 'lib32-libxcb')
+
+# If disable spirv-tools in build
+depends=('vkd3d' 'lib32-vulkan-icd-loader' 'lib32-libxcb')
+
+makedepends=('spirv-headers' 'vulkan-headers' 'xcb-proto' 'wine' 'gcc' 'gcc-libs' 'lib32-gcc-libs' 'llvm' 'lib32-llvm'
+             'llvm-libs' 'lib32-llvm-libs' 'clang' 'lib32-clang' 'xorgproto' 'xcb-util-keysyms' 'lib32-xcb-util-keysyms') # wine can be either wine or wine staging
+
+conflicts=('lib32-vkd3d')
+provides=('lib32-vkd3d' 'lib32-vkd3d-git')
+
+# This sources was for testing before adding xorgproto and xcb-util-keysyms to makedpends
+#source=('git://source.winehq.org/git/vkd3d.git'
+#        'vkd3d_d3d12.h')
+#md5sums=('SKIP'
+#         'SKIP')
+
+# New source
+source=('git://source.winehq.org/git/vkd3d.git')
+md5sums=('SKIP')
+
+pkgver(){
+  cd "$srcdir"/vkd3d/
+  echo 1.2.$(date -I | sed 's/-/_/' | sed 's/-/_/').$(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+}
+
+prepare(){
+
+  # This workarround was for testing before adding xorgproto and xcb-util-keysyms to makedpends
+  #cp "$srcdir"/vkd3d_d3d12.h "$srcdir"/vkd3d/include/
+
+  cd "$srcdir"/vkd3d/
+
+  ./autogen.sh
+}
+
+
+build(){
+if [[ $_compiler = "1" ]]; then
+  export CC='gcc'
+  export CXX='g++'
+elif [[ $_compiler = "2" ]]; then
+  export CC='clang'
+  export CXX='clang++'
+else
+  export CC='gcc'
+  export CXX='g++'
+fi
+export PKG_CONFIG_PATH='/usr/bin/i686-pc-linux-gnu'
+
+  cd "$srcdir"/vkd3d/
+
+  # with-spirv-tools build
+  # To enable with-spirv-tools-build comment out depends with lib32-spirv-tools package and comment depends with no lib32-spirv-tools package
+  #./configure --build=i386-pc-linux-gnu CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32 --prefix=/usr --libdir=/usr/lib32 --with-spirv-tools --enable-tests=no --disable-doxygen-doc
+
+  # with no spirv-tools enabled
+  ./configure --build=i386-pc-linux-gnu CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32 --prefix=/usr --libdir=/usr/lib32 --enable-tests=no --disable-doxygen-doc
+
+  make -j$(nproc)
+}
+
+package(){
+  cd "$srcdir"/vkd3d/
+
+  make DESTDIR="$pkgdir" install
+
+  rm -fr "${pkgdir}"/usr/include
+
+  (cd "${pkgdir}/usr/bin"; for i in *; do mv "${i}" "${i}-32"; done)
+
+  # installing license
+  install -Dt "$pkgdir"/usr/share/licenses/"$pkgname" -m644 "$srcdir"/vkd3d/LICENSE
+  install -Dt "$pkgdir"/usr/share/licenses/"$pkgname" -m644 "$srcdir"/vkd3d/COPYING
+  install -Dt "$pkgdir"/usr/share/licenses/"$pkgname" -m644 "$srcdir"/vkd3d/AUTHORS
+}

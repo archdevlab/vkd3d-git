@@ -21,7 +21,7 @@ fi
 #######################################
 
 pkgname=lib32-vkd3d-git
-pkgver=1.2
+pkgver=kd3d.1.2.r756.gbeafa091
 pkgrel=1
 pkgdesc='D3D12 to Vulkan translation library (32-bit) (git version)'
 arch=('x86_64')
@@ -40,7 +40,7 @@ pkgver(){
 
   # cutting off 'foo-' prefix that presents in the git tag
   #git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
-  git describe --long --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+  git describe --long --tags | sed 's/^vkd3d-//;s/\([^-]*-g\)/r\1/;s/-/./g'
 
   #git describe --long | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
   #git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'

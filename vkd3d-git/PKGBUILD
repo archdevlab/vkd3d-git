@@ -1,74 +1,45 @@
-#_                   _ _ _  _ _____ _  _
-#| | _______   ____ _| | | || |___  | || |
-#| |/ / _ \ \ / / _` | | | || |_ / /| || |_
-#|   <  __/\ V / (_| | | |__   _/ / |__   _|
-#|_|\_\___| \_/ \__,_|_|_|  |_|/_/     |_|
+# _     _            _        _          _____
+#| |__ | | __ _  ___| | _____| | ___   _|___ /
+#| '_ \| |/ _` |/ __| |/ / __| |/ / | | | |_ \
+#| |_) | | (_| | (__|   <\__ \   <| |_| |___) |
+#|_.__/|_|\__,_|\___|_|\_\___/_|\_\\__, |____/
+#                                  |___/
 
-#Maintainer: kevall474 <kevall474@tuta.io> <https://github.com/kevall474>
+#Maintainer: blacksky3 <blacksky3@tuta.io> <https://github.com/blacksky3>
 #Credits: Felix Yan <felixonmars@archlinux.or>
 #Credits: Bruce Zhang
 #Credits: Gustavo Alvarez <sl1pkn07@gmail.com>
 
-#######################################
-
-#Set '1' to build with GCC
-#Set '2' to build with CLANG
-#Default is empty. It will build with GCC. To build with different compiler just use : env _compiler=(1 or 2) makepkg -s
-if [ -z ${_compiler+x} ]; then
-  _compiler=
-fi
-
-#######################################
-
 pkgname=vkd3d-git
+pkgdesc='D3D12 to Vulkan translation library (git version)'
 pkgver=1.2.r756.gbeafa091
 pkgrel=1
-pkgdesc='D3D12 to Vulkan translation library (git version)'
-arch=('x86_64')
+arch=(x86_64)
 url='https://source.winehq.org/git/vkd3d.git'
-license=('LGPL')
-depends=('spirv-tools' 'vulkan-icd-loader' 'libxcb')
-makedepends=('spirv-headers' 'vulkan-headers' 'xcb-proto' 'wine' 'gcc' 'gcc-libs' 'llvm' 'clang' 'xorgproto' 'xcb-util-keysyms') # wine can be either wine or wine staging
-conflicts=('vkd3d')
-provides=('vkd3d' 'vkd3d-git')
-source=('git://source.winehq.org/git/vkd3d.git')
-md5sums=('SKIP')
+license=(LGPL)
+depends=(spirv-tools vulkan-icd-loader libxcb)
+makedepends=(spirv-headers vulkan-headers xcb-proto wine gcc gcc-libs xorgproto xcb-util-keysyms)
+conflicts=(vkd3d)
+provides=(vkd3d vkd3d-git)
+source=(git://source.winehq.org/git/vkd3d.git)
+md5sums=(SKIP)
 
 pkgver(){
-  cd "$srcdir"/vkd3d/
-  
-  # cutting off 'foo-' prefix that presents in the git tag
-  #git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
-  git describe --long --tags | sed 's/^vkd3d-//;s/\([^-]*-g\)/r\1/;s/-/./g'
+  cd ${srcdir}/vkd3d
 
-  #git describe --long | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
-  #git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+  # cutting off 'foo-' prefix that presents in the git tag
+  git describe --long --tags | sed 's/^vkd3d-//;s/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare(){
-
-  # This workarround was for testing before adding xorgproto and xcb-util-keysyms to makedpends
-  #cp "$srcdir"/vkd3d_d3d12.h "$srcdir"/vkd3d/include/
-
-  cd "$srcdir"/vkd3d/
+  cd ${srcdir}/vkd3d
 
   ./autogen.sh
 }
 
 
 build(){
-if [[ $_compiler = "1" ]]; then
-  export CC='gcc'
-  export CXX='g++'
-elif [[ $_compiler = "2" ]]; then
-  export CC='clang'
-  export CXX='clang++'
-else
-  export CC='gcc'
-  export CXX='g++'
-fi
-
-  cd "$srcdir"/vkd3d/
+  cd ${srcdir}/vkd3d
 
   ./configure --prefix=/usr --with-spirv-tools --enable-tests=no
 
@@ -76,13 +47,10 @@ fi
 }
 
 package(){
-  cd "$srcdir"/vkd3d/
-
-  make DESTDIR="$pkgdir" install
+  make DESTDIR="$pkgdir" -C ${srcdir}/vkd3d/ install
 
   # installing license
   install -Dt "$pkgdir"/usr/share/licenses/"$pkgname" -m644 "$srcdir"/vkd3d/LICENSE
   install -Dt "$pkgdir"/usr/share/licenses/"$pkgname" -m644 "$srcdir"/vkd3d/COPYING
   install -Dt "$pkgdir"/usr/share/licenses/"$pkgname" -m644 "$srcdir"/vkd3d/AUTHORS
-
 }

@@ -28,7 +28,7 @@ pkgver(){
   cd ${srcdir}/vkd3d
 
   # cutting off 'foo-' prefix that presents in the git tag
-  git describe --long --tags | sed 's/^vkd3d-//;s/\([^-]*-g\)/r\1/;s/-/./g'
+  git describe --long --tags --abbrev=7 | sed 's/^vkd3d-//;s/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare(){

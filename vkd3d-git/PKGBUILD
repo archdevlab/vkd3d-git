@@ -12,7 +12,7 @@
 
 pkgname=vkd3d-git
 pkgdesc='D3D12 to Vulkan translation library (git version)'
-pkgver=1.2.r756.gbeafa091
+pkgver=1.8
 pkgrel=1
 arch=(x86_64)
 url='https://source.winehq.org/git/vkd3d.git'

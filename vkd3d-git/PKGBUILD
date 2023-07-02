@@ -17,7 +17,7 @@ pkgrel=1
 arch=(x86_64)
 url='https://source.winehq.org/git/vkd3d.git'
 license=(LGPL)
-depends=(spirv-tools vulkan-icd-loader)
+depends=(vulkan-icd-loader)
 makedepends=(spirv-headers vulkan-headers xcb-util-keysyms xorgproto wine git)
 conflicts=(vkd3d)
 provides=(vkd3d vkd3d-git)
@@ -40,7 +40,11 @@ prepare(){
 build(){
   cd ${srcdir}/vkd3d
 
-  ./configure --prefix=/usr --with-spirv-tools --enable-tests=no
+  # with no spirv-tools
+  ./configure --prefix=/usr --enable-tests=no
+
+  # with spirv-tools
+  #./configure --prefix=/usr --with-spirv-tools --enable-tests=no
 
   make -j$(nproc)
 }

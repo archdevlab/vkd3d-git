@@ -11,7 +11,7 @@
 #Credits: Gustavo Alvarez <sl1pkn07@gmail.com>
 
 pkgname=lib32-vkd3d-git
-pkgver=1.2.r756.gbeafa091
+pkgver=1.8
 pkgrel=1
 pkgdesc='D3D12 to Vulkan translation library (32-bit) (git version)'
 arch=(x86_64)

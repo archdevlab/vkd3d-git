@@ -47,10 +47,6 @@ export PKG_CONFIG_PATH=/usr/lib32/pkgconfig
 
   cd ${srcdir}/vkd3d
 
-  # with-spirv-tools build
-  #./configure --build=i386-pc-linux-gnu CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32 --prefix=/usr --libdir=/usr/lib32 --with-spirv-tools --enable-tests=no --disable-doxygen-doc
-
-  # with no spirv-tools enabled
   ./configure --build=i386-pc-linux-gnu CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32 --prefix=/usr --libdir=/usr/lib32 --enable-tests=no --disable-doxygen-doc
 
   make -j$(nproc)

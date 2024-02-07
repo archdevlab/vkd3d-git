@@ -1,20 +1,13 @@
-# _     _            _        _          _____
-#| |__ | | __ _  ___| | _____| | ___   _|___ /
-#| '_ \| |/ _` |/ __| |/ / __| |/ / | | | |_ \
-#| |_) | | (_| | (__|   <\__ \   <| |_| |___) |
-#|_.__/|_|\__,_|\___|_|\_\___/_|\_\\__, |____/
-#                                  |___/
-
-#Maintainer: blacksky3 <https://github.com/blacksky3>
+#Maintainer: archdevlab <https://github.com/archdevlab>
 #Credits: Felix Yan <felixonmars@archlinux.or>
 #Credits: Bruce Zhang
 #Credits: Gustavo Alvarez <sl1pkn07@gmail.com>
 
 pkgname=lib32-vkd3d-git
-pkgver=1.8
+pkgver=1.10.r411.g7f87a3e
 pkgrel=1
 pkgdesc='D3D12 to Vulkan translation library (32-bit) (git version)'
-arch=(x86_64)
+arch=(i686 x86_64)
 url='https://source.winehq.org/git/vkd3d.git'
 license=(LGPL)
 depends=(lib32-vulkan-icd-loader)
@@ -24,45 +17,43 @@ provides=(lib32-vkd3d lib32-vkd3d-git)
 source=(git+https://gitlab.winehq.org/wine/vkd3d.git)
 
 pkgver(){
-  cd ${srcdir}/vkd3d
-
-  # cutting off 'foo-' prefix that presents in the git tag
+  cd "${srcdir}"/vkd3d
   git describe --long --tags --abbrev=7 | sed 's/^vkd3d-//;s/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare(){
-  cd ${srcdir}/vkd3d
+  cd "${srcdir}"/vkd3d
 
   ./autogen.sh
 }
 
-
 build(){
-export CC='gcc -m32'
-export CXX='g++ -m32'
-export ASFLAGS=--32
-export CFLAGS=-m32
-export CXXFLAGS=-m32
+export CFLAGS+=" -m32"
+export CXXFLAGS+=" -m32"
+export LDFLAGS+=" -m32"
+export LDFLAGS+=" -L/usr/lib32"
+export ASFLAGS+=" --32"
 export PKG_CONFIG_PATH=/usr/lib32/pkgconfig
 
-  cd ${srcdir}/vkd3d
+  cd "${srcdir}"/vkd3d
 
-  ./configure --build=i386-pc-linux-gnu CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32 --prefix=/usr --libdir=/usr/lib32 --enable-tests=no --disable-doxygen-doc
+  ./configure --build=i686-pc-linux-gnu --prefix=/usr --libdir=/usr/lib32 --enable-tests=no --disable-doxygen-doc
 
   make -j$(nproc)
 }
 
 package(){
-  make DESTDIR="$pkgdir" -C ${srcdir}/vkd3d/ install
+  make DESTDIR="${pkgdir}" -C "${srcdir}"/vkd3d install
 
   rm -fr "${pkgdir}"/usr/include
 
-  (cd "${pkgdir}/usr/bin"; for i in *; do mv "${i}" "${i}-32"; done)
+  (cd "${pkgdir}"/usr/bin; for i in *; do mv "${i}" "${i}-32"; done)
 
-  # installing license
-  install -Dt "$pkgdir"/usr/share/licenses/"$pkgname" -m644 "$srcdir"/vkd3d/LICENSE
-  install -Dt "$pkgdir"/usr/share/licenses/"$pkgname" -m644 "$srcdir"/vkd3d/COPYING
-  install -Dt "$pkgdir"/usr/share/licenses/"$pkgname" -m644 "$srcdir"/vkd3d/AUTHORS
+  # install license
+  install -dm755 "${pkgdir}"/usr/share/licenses/"${pkgname}"
+  install -m644 "${srcdir}"/vkd3d/LICENSE "${pkgdir}"/usr/share/licenses/"${pkgname}"/
+  install -m644 "${srcdir}"/vkd3d/COPYING "${pkgdir}"/usr/share/licenses/"${pkgname}"/
+  install -m644 "${srcdir}"/vkd3d/AUTHORS "${pkgdir}"/usr/share/licenses/"${pkgname}"/
 }
 
 sha256sums=('SKIP')

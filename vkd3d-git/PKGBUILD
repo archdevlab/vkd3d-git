@@ -1,18 +1,11 @@
-# _     _            _        _          _____
-#| |__ | | __ _  ___| | _____| | ___   _|___ /
-#| '_ \| |/ _` |/ __| |/ / __| |/ / | | | |_ \
-#| |_) | | (_| | (__|   <\__ \   <| |_| |___) |
-#|_.__/|_|\__,_|\___|_|\_\___/_|\_\\__, |____/
-#                                  |___/
-
-#Maintainer: blacksky3 <https://github.com/blacksky3>
+#Maintainer: archdevlab <https://github.com/archdevlab>
 #Credits: Felix Yan <felixonmars@archlinux.or>
 #Credits: Bruce Zhang
 #Credits: Gustavo Alvarez <sl1pkn07@gmail.com>
 
 pkgname=vkd3d-git
 pkgdesc='D3D12 to Vulkan translation library (git version)'
-pkgver=1.8
+pkgver=1.10.r411.g7f87a3e
 pkgrel=1
 arch=(x86_64)
 url='https://source.winehq.org/git/vkd3d.git'
@@ -24,21 +17,18 @@ provides=(vkd3d vkd3d-git)
 source=(git+https://gitlab.winehq.org/wine/vkd3d.git)
 
 pkgver(){
-  cd ${srcdir}/vkd3d
-
-  # cutting off 'foo-' prefix that presents in the git tag
+  cd "${srcdir}"/vkd3d
   git describe --long --tags --abbrev=7 | sed 's/^vkd3d-//;s/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare(){
-  cd ${srcdir}/vkd3d
+  cd "${srcdir}"/vkd3d
 
   ./autogen.sh
 }
 
-
 build(){
-  cd ${srcdir}/vkd3d
+  cd "${srcdir}"/vkd3d
 
   # with no spirv-tools
   ./configure --prefix=/usr --enable-tests=no
@@ -50,12 +40,13 @@ build(){
 }
 
 package(){
-  make DESTDIR="$pkgdir" -C ${srcdir}/vkd3d/ install
+  make DESTDIR="${pkgdir}" -C "${srcdir}"/vkd3d install
 
-  # installing license
-  install -Dt "$pkgdir"/usr/share/licenses/"$pkgname" -m644 "$srcdir"/vkd3d/LICENSE
-  install -Dt "$pkgdir"/usr/share/licenses/"$pkgname" -m644 "$srcdir"/vkd3d/COPYING
-  install -Dt "$pkgdir"/usr/share/licenses/"$pkgname" -m644 "$srcdir"/vkd3d/AUTHORS
+  # install license
+  install -dm755 "${pkgdir}"/usr/share/licenses/"${pkgname}"
+  install -m644 "${srcdir}"/vkd3d/LICENSE "${pkgdir}"/usr/share/licenses/"${pkgname}"/
+  install -m644 "${srcdir}"/vkd3d/COPYING "${pkgdir}"/usr/share/licenses/"${pkgname}"/
+  install -m644 "${srcdir}"/vkd3d/AUTHORS "${pkgdir}"/usr/share/licenses/"${pkgname}"/
 }
 
 sha256sums=('SKIP')
